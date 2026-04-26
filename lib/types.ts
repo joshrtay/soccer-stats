@@ -7,31 +7,36 @@ export type Player = {
   name: string;
   number: number;
   position: Position;
-  active: boolean;
 };
 
-export type PlayerMatchStats = {
-  playerId: string;
-  started: boolean;
-  minutes: number;
-  goals: number;
-  assists: number;
-  yellowCards: number;
-  redCards: number;
-  saves: number;
-  cleanSheet: boolean;
+export const ACTION_TYPES = [
+  "passComplete",
+  "passMissed",
+  "shotMade",
+  "shotMissed",
+  "duelWon",
+  "duelLost",
+  "opponentGoal",
+] as const;
+
+export type ActionType = (typeof ACTION_TYPES)[number];
+
+// Player-attributable actions — everything except opponentGoal.
+export type PlayerActionType = Exclude<ActionType, "opponentGoal">;
+
+export type MatchStat = {
+  id: string;
+  type: ActionType;
+  ts: number;
+  // Player-attributable events have a playerId. opponentGoal events do not.
+  playerId?: string;
 };
 
 export type Match = {
   id: string;
   date: string;
   opponent: string;
-  homeAway: "home" | "away";
-  competition: string;
-  ourScore: number;
-  theirScore: number;
-  notes: string;
-  stats: PlayerMatchStats[];
+  stats: MatchStat[];
 };
 
 export type TeamData = {
@@ -47,17 +52,3 @@ export const emptyTeamData: TeamData = {
   players: [],
   matches: [],
 };
-
-export function emptyMatchStats(playerId: string): PlayerMatchStats {
-  return {
-    playerId,
-    started: false,
-    minutes: 0,
-    goals: 0,
-    assists: 0,
-    yellowCards: 0,
-    redCards: 0,
-    saves: 0,
-    cleanSheet: false,
-  };
-}
